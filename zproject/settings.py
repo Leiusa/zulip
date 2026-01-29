@@ -43,3 +43,10 @@ from .computed_settings import *  # noqa: F403 isort: skip
 
 # Do not add any code after these wildcard imports!  Add it to
 # computed_settings instead.
+
+# LLM integration defaults
+
+api_key = os.getenv('ZULIP_API_KEY')
+LLM_PROVIDER = "openai"
+LLM_API_KEY = api_key  # set in environment / deployment
+LLM_MODEL = "gpt-4o"

@@ -1,4 +1,4 @@
-# AI integrations
+  # AI integrations
 
 Zulip’s [topics](https://zulip.com/help/introduction-to-topics) organize
 conversations within a channel, which is ideal for integrating with AI systems

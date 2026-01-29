@@ -9,7 +9,7 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetDoneView,
 )
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 from django.urls.resolvers import URLPattern, URLResolver
 from django.utils.module_loading import import_string
 from django.views.generic import RedirectView
@@ -90,6 +90,7 @@ from zerver.views.message_flags import (
     update_message_flags_for_narrow,
 )
 from zerver.views.message_report import report_message_backend
+from zerver.views.message_recap import message_recap
 from zerver.views.message_send import render_message_backend, send_message_backend, zcommand_backend
 from zerver.views.message_summary import get_messages_summary
 from zerver.views.muted_users import mute_user, unmute_user
@@ -381,6 +382,8 @@ v1_api_and_json_patterns = [
     rest_path("mark_all_as_read", POST=mark_all_as_read),
     rest_path("mark_stream_as_read", POST=mark_stream_as_read),
     rest_path("mark_topic_as_read", POST=mark_topic_as_read),
+    # Add AI recap endpoint handled by rest_dispatch so auth works correctly
+    rest_path("ai/message_recap", POST=message_recap),
     rest_path("zcommand", POST=zcommand_backend),
     # Endpoints for syncing drafts.
     rest_path("drafts", GET=fetch_drafts, POST=create_drafts),
@@ -1008,3 +1011,9 @@ urls += [path("health", health)]
 # reverse URL mapping points to i18n URLs which causes the frontend
 # tests to fail
 urlpatterns = i18n_patterns(*i18n_urls) + urls
+
+# Ensure the zerver app URLconf is included so zerver/urls.py routes (like message_recap) are registered.
+try:
+    urlpatterns += [path("", include("zerver.urls"))]
+except NameError:
+    urlpatterns = [path("", include("zerver.urls"))]
