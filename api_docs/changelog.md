@@ -20,6 +20,12 @@ format used by the Zulip server that they are interacting with.
 
 ## Changes in Zulip 12.0
 
+**Feature level 456**
+
+* `PATCH /realm`, [`POST /register`](/api/register-queue),
+  [`GET /events`](/api/get-events): Added a new
+  `default_avatar_source` realm setting.
+
 **Feature level 455**
 
 * [`POST /register`](/api/register-queue), [`GET
@@ -50,10 +56,8 @@ format used by the Zulip server that they are interacting with.
 
 **Feature level 452**
 
-* [`GET /events`](/api/get-events): Prior to Zulip 12.0 (feature level 452)
-  messages deleted via a message retention policy incorrectly failed to generate
-  `delete_message` events. This is now fixed, allowing clients to correctly update
-  their message state, by removing the affected messages from view.
+* [`GET /events`](/api/get-events): Messages deleted via a message
+  retention policy now correctly generate `delete_message` events.
 
 **Feature level 451**
 

@@ -125,17 +125,17 @@ export const narrow_canonical_term_schema = z.discriminatedUnion("operator", [
     }),
     z.object({
         operator: z.literal("sender"),
-        operand: z.string(),
+        operand: z.number(),
         negated: z.optional(z.boolean()),
     }),
     z.object({
         operator: z.literal("dm-including"),
-        operand: z.string(),
+        operand: z.array(z.number()),
         negated: z.optional(z.boolean()),
     }),
     z.object({
         operator: z.literal("dm"),
-        operand: z.string(),
+        operand: z.array(z.number()),
         negated: z.optional(z.boolean()),
     }),
 ]);
@@ -481,6 +481,7 @@ export const realm_schema = z.object({
     realm_can_summarize_topics_group: group_setting_value_schema,
     realm_create_multiuse_invite_group: group_setting_value_schema,
     realm_date_created: z.number(),
+    realm_default_avatar_source: z.enum(["G", "J"]),
     realm_default_code_block_language: z.string(),
     realm_default_external_accounts: z.record(
         z.string(),
