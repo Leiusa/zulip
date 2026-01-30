@@ -17,6 +17,7 @@ Notes on safety
 - Hide the api-key into environment variable to keep it safe.
 
 Youtube Link: https://www.youtube.com/watch?v=S9U81diCwcI (private video which could only viewed by @andrew.cmu.edu email)
+
 ---
 
 ## Feature 2 — Topic Title Improver (low-cost drift detection + suggestion)
