@@ -41,6 +41,42 @@ security:
 # Endpoint definitions
 #######################
 paths:
+  /json/ai/message_recap:
+    post:
+      summary: Generate LLM recap for given messages
+      operationId: message_recap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message_ids:
+                  type: array
+                  items:
+                    type: integer
+              required: [message_ids]
+      responses:
+        '200':
+          description: Recap result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recap_html:
+                    type: string
+                  message_refs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message_id:
+                          type: integer
+                        anchor:
+                          type: string
+                        snippet:
+                          type: string
   /fetch_api_key:
     post:
       operationId: fetch-api-key

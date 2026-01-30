@@ -11,6 +11,7 @@ import * as sent_messages from "./sent_messages.ts";
 import * as server_events_state from "./server_events_state.ts";
 import {current_user} from "./state_data.ts";
 import * as stream_data from "./stream_data.ts";
+import {maybe_request_topic_suggestion} from "./topic_improver.ts";
 
 type SendMessageData = {
     local_id: string;
@@ -45,10 +46,11 @@ export function send_message(
         channel.post({
             url: "/json/messages",
             data: request,
-            success: function success(data) {
-                // Call back to our callers to do things like closing the compose
-                // box, turning off spinners, reifying locally echoed messages and
-                // displaying visibility policy related compose banners.
+            success: function success(raw_data) {
+                const data = raw_data as {id?: number};
+                if (request.type === "stream" && typeof data.id === "number") {
+                    maybe_request_topic_suggestion([data.id]);
+            }
                 on_success(data);
                 // Once everything is done, get ready to report times to the server.
                 const state = sent_messages.get_message_state(request.local_id);

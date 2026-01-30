@@ -78,3 +78,97 @@ following us on [LinkedIn](https://www.linkedin.com/company/zulip-project/),
 
 Zulip is distributed under the
 [Apache 2.0](https://github.com/zulip/zulip/blob/main/LICENSE) license.
+
+# Zulip (development) — quick start (Vagrant)
+
+This repository contains a Zulip development environment with two LLM-based features:
+- Message Recap — generates a concise recap of unread messages (frontend: `web/src/recap.ts`, backend: `zerver/lib/ai.py`).
+- Topic Title Improver — suggests better topic titles when a topic drifts (frontend: `web/src/topic_improver.ts`, backend: `zerver/views/topic_improver.py`).
+
+These notes show how to install and run the development server using Vagrant (recommended for development) and how to provide an LLM API key.
+
+Prerequisites (host)
+- Git
+- Vagrant (with Docker provider) or a supported VM provider
+- Docker (for the Vagrant Docker provider)
+- Node.js (recommended LTS) and pnpm (for local frontend builds if needed)
+  - Install pnpm: `npm install -g pnpm` (if you will run frontend builds locally)
+
+Get the code
+1. Clone the repo:
+   git clone <your-fork-or-upstream-url> zulip
+   cd zulip
+
+Start with Vagrant (recommended)
+1. Start the Vagrant development environment (Docker provider is common):
+   vagrant up --provider=docker
+
+2. SSH into the VM:
+   vagrant ssh
+
+3. Inside the VM, change to the repository root (usually `/vagrant` or `/srv/zulip`):
+   cd /vagrant   # or cd /srv/zulip
+
+4. Provision / prepare the dev environment (only needed if not already provisioned):
+   ./tools/provision
+
+5. Activate the Python venv and start the development server:
+   source .venv/bin/activate
+   ./tools/run-dev
+
+6. Open the site in your browser:
+   http://localhost:9991
+
+If you prefer running locally without Vagrant
+- Install required system packages per `docs/development/setup-recommended.md`.
+- Run `./tools/provision`, `source .venv/bin/activate`, then `./tools/run-dev.py`.
+
+Frontend (assets) build notes
+- The dev run will rebuild assets automatically in the VM. If you edit frontend code and need to build manually:
+  pnpm install
+  pnpm build
+- After building, restart the dev server (`./tools/run-dev.py`) and hard-refresh the browser (Ctrl/Cmd+Shift+R).
+
+Providing an LLM API token (OpenAI or other configured provider)
+- The code looks for an LLM API key via your Django settings (setting name `LLM_API_KEY`).
+- For development, simplest options:
+  - Put your API key into the file `openai_api.key` in the repo root (one line, the key). The development settings in this environment may read this file.
+  - Or, set an environment variable when starting the server in the VM:
+    export LLM_API_KEY="sk-..."
+    ./tools/run-dev.py
+- Confirm the key is available to the Django process (check server logs for LLM config debug lines).
+
+Notes about cost, rate limits, and safety
+- Topic suggestions are guarded by cheap heuristics on the server to avoid unnecessary LLM calls (see `zerver/views/topic_improver.py`).
+- Recaps and suggestions use bounded context, truncated messages, and conservative token limits (see `zerver/lib/ai.py`).
+- Server sanitizes LLM-generated HTML before sending to client (see `generate_message_recap`).
+
+Verify the frontend changes are loaded
+- After building and starting the dev server, hard-refresh the browser.
+- In DevTools Console:
+  - Check the sidebar entry: `!!document.getElementById('recap-unread-entry')`
+  - Quick manual call (debug): `window.show_unread_recap && window.show_unread_recap()`
+
+Where to look in the code (quick pointers)
+- Recap frontend: `web/src/recap.ts` — `show_unread_recap`
+- Recap server: `zerver/lib/ai.py` — `generate_message_recap`
+- Topic improver frontend: `web/src/topic_improver.ts` — `maybe_request_topic_suggestion`
+- Topic improver server: `zerver/views/topic_improver.py` — heuristics + `suggest_topic_title`
+- Frontend entry: `web/src/index.ts`
+- Unread canonical source: `web/src/unread.ts` — `get_all_msg_ids`
+
+If you added dependencies
+- Node deps are managed via pnpm (`package.json` + `pnpm-lock.yaml`).
+  Run: `pnpm install`
+- Python dependencies are managed by the project's provisioning; running `./tools/provision` in the VM will install them.
+
+
+Troubleshooting
+- If you do not see frontend changes:
+  1. Ensure you built frontend assets (inside VM if using Vagrant): `pnpm install && pnpm build`
+  2. Restart the dev server: `pkill -f tools/run-dev.py || true` then `./tools/run-dev.py`
+  3. Hard-refresh the browser (Ctrl/Cmd+Shift+R)
+  4. Check run-dev.py terminal output for build errors and browser console for JS errors.
+
+Contact / next steps
+- See `Implementation.md` for an implementation summary and direct file links for the

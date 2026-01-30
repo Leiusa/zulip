@@ -12,6 +12,8 @@ import "../templates.ts";
 import "../zulip_test.ts";
 import "../inputs.ts";
 import "../recap.ts";
+import "../topic_improver.ts";
+
 // Import styles
 import "tippy.js/dist/tippy.css";
 // Adds color inheritance to the borders when using the default CSS Arrow.

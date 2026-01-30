@@ -7,7 +7,10 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext as _
 from pydantic import Json
+from zerver.lib.topic_title_suggestions import enqueue_topic_title_suggestion_event
+import logging
 
+logger = logging.getLogger(__name__)
 from zerver.actions.message_send import (
     check_send_message,
     compute_irc_user_fullname,
@@ -236,6 +239,18 @@ def send_message_backend(
         read_by_sender=read_by_sender,
     )
     data["id"] = sent_message_result.message_id
+        # Feature 2: Topic title improver trigger (async)
+    #if recipient_type_name == "stream" and topic_name:
+    #    try:
+    #        if message_to and isinstance(message_to[0], int):
+    #            enqueue_topic_title_suggestion_event(
+    #                user_id=sender.id,
+    #                stream_id=message_to[0],
+    #                topic=topic_name,
+    #                trigger_message_id=sent_message_result.message_id,
+    #            )
+    #    except Exception:
+    #        logger.exception("Failed to enqueue topic title suggestion")
     if sent_message_result.automatic_new_visibility_policy:
         data["automatic_new_visibility_policy"] = (
             sent_message_result.automatic_new_visibility_policy

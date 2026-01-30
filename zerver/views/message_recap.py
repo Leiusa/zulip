@@ -9,10 +9,7 @@ from zerver.lib.ai import generate_message_recap
 
 import logging
 import json
-logger = logging.getLogger(__name__)
 
-logger.warning("LOADED message_recap.py from %s", __file__)
-print("### IMPORTED message_recap.py ###", __file__, flush=True)
 @human_users_only
 def message_recap(request: HttpRequest, user: UserProfile) -> HttpResponse:
     # First, try to get message_ids from form-encoded POST
@@ -27,8 +24,6 @@ def message_recap(request: HttpRequest, user: UserProfile) -> HttpResponse:
                     raw_ids = [str(x) for x in payload["message_ids"]]
         except Exception:
             logger.exception("Failed to parse JSON body for message_recap")
-
-    logger.debug("message_recap called, raw_ids=%s", raw_ids)
 
     if not raw_ids:
         raise JsonableError("message_ids is required")
@@ -64,8 +59,6 @@ def message_recap(request: HttpRequest, user: UserProfile) -> HttpResponse:
         }
         for m in ordered_msgs
     ]
-
-    logger.debug("message_recap returning recap_html length=%d message_refs=%d", len(recap_html or ""), len(message_refs))
     # Return actual recap_html & refs
     #return json_success({
     #    "recap_html": recap_html,
